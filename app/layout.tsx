@@ -16,7 +16,12 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={inter.className}>{children}</body>
+      <body className={inter.className}>
+        <div className='fixed h-screen w-full bg-gradient-to-br from-emerald-200  via-cyan-300 to-sky-200'>
+        {children}
+        </div>
+   
+        </body>
     </html>
   )
 }
