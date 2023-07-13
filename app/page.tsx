@@ -1,11 +1,9 @@
 'use client'
-
-import Image from 'next/image'
-import { Fragment, useState } from 'react'
+import { Fragment, useState, useEffect } from 'react'
 import { Combobox, Dialog, Transition } from '@headlessui/react'
 import { MagnifyingGlassIcon } from '@heroicons/react/20/solid'
 import { UsersIcon } from '@heroicons/react/24/outline'
-import { ChevronRightIcon, CloudArrowDownIcon } from '@heroicons/react/20/solid'
+import { ChevronRightIcon } from '@heroicons/react/20/solid'
 
 const people = [
   {
@@ -22,59 +20,37 @@ const people = [
   // More people...
 ]
 
+const recent = [people[0]]
 const prompts = [
   'Step 1: Open the Threads app on phone.',
   'Step 2: Find the content you want to download and pressing the Copy Link.',
 ]
 
-const recent = [people[0]]
-
-type Status = 'waitingInput' | 'searching' | 'notFound' | 'found'
-
-function classNames(...classes: unknown[]) {
+function classNames(...classes) {
   return classes.filter(Boolean).join(' ')
 }
 
 export default function Example() {
   const [query, setQuery] = useState('')
-  const [open, setOpen] = useState(true)
-  const [status, setStatus] = useState<Status>('waitingInput')
 
 
-
-  const filteredPeople =
+  const filteredVideo =
     query === ''
       ? []
-      : people.filter((person) => {
+      :  people.filter((person) => {
           return person.name.toLowerCase().includes(query.toLowerCase())
         })
 
-  function setContent(event: any) {
-    console.log(event.target.value)
-    if (event.target.value === '') {
-      setStatus('waitingInput')
-    } else {
-      setQuery(event.target.value)
-      setStatus('searching')
-      searchQuery()
-    }
-  }
-
-  function searchQuery() {
-    setStatus('searching')
-    setTimeout(() => {
-      setStatus('notFound')
-    }, 2000)
-  }
+  console.log('filteredVideo', filteredVideo)
 
   return (
     <Transition.Root
       show={true}
       as={Fragment}
-
+      afterLeave={() => setQuery('')}
       appear
     >
-      <Dialog as="div" className="relative z-10" onClose={setOpen}>
+      <Dialog static as="div" className="relative z-10" onClose={() => {}}>
         <Transition.Child
           as={Fragment}
           enter="ease-out duration-300"
@@ -111,13 +87,11 @@ export default function Example() {
                       <Combobox.Input
                         className="h-12 w-full border-0 bg-transparent pl-11 pr-4 text-gray-800 placeholder-gray-400 focus:ring-0 sm:text-sm"
                         placeholder="Search..."
-                        value={query}
-                        // onChange={(event) => setContent(event)}
+                        onChange={(event) => setQuery(event.target.value)}
                       />
                     </div>
 
-
-                    {status == 'waitingInput' && (
+                    {query === '' && (
                       <Combobox.Options
                         static
                         className="max-h-72 scroll-py-2 overflow-y-auto py-2 text-sm text-gray-800"
@@ -140,29 +114,7 @@ export default function Example() {
                       </Combobox.Options>
                     )}
 
-                    {status == 'searching' && (
-                      <Combobox.Options
-                        static
-                        className="max-h-72 scroll-py-2 overflow-y-auto py-2 text-sm text-gray-800"
-                      >
-                        <Combobox.Option
-                          disabled
-                          value={'searching'}
-                          className="cursor-default select-none px-4 py-2"
-                        >
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center flex-1 min-w-0">
-                              <CloudArrowDownIcon className="animate-ping h-3 w-3"></CloudArrowDownIcon>
-                              <span className="truncate ml-3">
-                                Searching...
-                              </span>
-                            </div>
-                          </div>
-                        </Combobox.Option>
-                      </Combobox.Options>
-                    )}
-
-                    {status == 'found' && (
+                    {query !== '' && filteredVideo.length >= 1 && (
                       <Combobox.Options
                         as="div"
                         static
@@ -181,7 +133,7 @@ export default function Example() {
                             </h2>
                           )}
                           <div className="-mx-2 text-sm text-gray-700">
-                            {(query === '' ? recent : filteredPeople).map(
+                            {(query === '' ? recent : filteredVideo).map(
                               (person) => (
                                 <Combobox.Option
                                   as="div"
@@ -274,7 +226,7 @@ export default function Example() {
                       </Combobox.Options>
                     )}
 
-                    {status == 'notFound' && (
+                    {query !== '' && filteredVideo.length === 0 && (
                       <div className="py-14 px-6 text-center text-sm sm:px-14">
                         <UsersIcon
                           className="mx-auto h-6 w-6 text-gray-400"
